@@ -52,7 +52,7 @@ def menu_loop():
         choice = input("Action: ").lower().strip()
 
         if choice in menu:
-            menu[choice]()
+            return menu[choice]()
 
 
 def search_menu():
@@ -123,7 +123,6 @@ def validate_task_name(task):
             task = input("Please try again:  ")
             continue
         else:
-            return task
             return task
 
 

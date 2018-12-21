@@ -1,16 +1,11 @@
 import unittest
 import datetime
 import unittest.mock as mock
-from playhouse.test_utils import test_database
 from worklog import Entry
 
 from peewee import *
 
 import worklog
-
-TEST_DB = SqliteDatabase(':memory:')
-TEST_DB.connect()
-TEST_DB.create_tables([worklog.Entry], safe=True)
 
 test_entry = {
     "task": "Beau test",
@@ -28,12 +23,12 @@ test_entry_2 = {
     "notes": "Notes test",
 }
 
-entries = (test_entry, test_entry_2)
+test_entries = [test_entry, test_entry_2]
 
 # string with zero chars for testing
 zero_string = ""
 
-# A string ov
+# A string over 255 chars for testing errors
 bad_string = """Lorem ipsum dolor sit amet, consectetur adipiscing
  elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
  Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi 
