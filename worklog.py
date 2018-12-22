@@ -38,6 +38,7 @@ def initialize():
     """ Create database and table if they don't exist"""
     db.connect()
     db.create_tables([Entry], safe=True)
+    return True
 
 
 def menu_loop():
@@ -74,14 +75,15 @@ def search_menu():
             search_choice = input("Action: ").lower().strip()
 
             if search_choice in search_menu:
-                search_menu[search_choice]()
+                results = search_menu[search_choice](entries)
+                display_entries(results)
 
 
 def add_entry():
     """ Add an entry """
     clear()
     print("Add an entry")
-    # Retieve and validate task information
+    # Retrieve and validate task information
     task = input("Please enter the name of your task:  ")
     task = validate_task_name(task)
     clear()
@@ -236,10 +238,9 @@ def display_entries(entries):
             continue
 
 
-def view_all_tasks():
+def view_all_tasks(entries):
     """ View all tasks """
-    entries = fetch_tasks()
-    display_entries(entries)
+    return entries
 
 
 def get_unique_dates(entries):
@@ -262,15 +263,14 @@ def get_unique_employees(entries):
     return unique_employees
 
 
-def search_by_employee():
+def search_by_employee(entries):
     """ Search by employee name"""
-    entries = fetch_tasks()
-    unique_employees = get_unique_employees(entries)
     employee_matches = []
     clear()
     while True:
+        employees = get_unique_employees(entries)
         print("EMPLOYEES")
-        for employee in unique_employees:
+        for employee in employees:
             print(employee)
         employee_search = input("\nPlease enter a name of an "
                                 "employee to search by:  ")
@@ -297,7 +297,7 @@ def search_by_employee():
                         entries = \
                             Entry.select().order_by(Entry.date.desc())\
                             .where(Entry.employee == employee_input)
-                        display_entries(entries)
+                        return entries
                     else:
                         clear()
                         print("Employee not found in list. Please try again.")
@@ -305,15 +305,14 @@ def search_by_employee():
             else:
                 entries = Entry.select().order_by(Entry.date.desc()).where(
                     Entry.employee == employee_match)
-                display_entries(entries)
+                return entries
 
 
-def search_by_date():
+def search_by_date(entries):
     """ Search by a date """
     clear()
     results = []
     while True:
-        entries = fetch_tasks()
         unique_dates = get_unique_dates(entries)
         print("Dates with tasks.")
         for date in unique_dates:
@@ -328,7 +327,6 @@ def search_by_date():
             for entry in entries:
                 if entry.date.strftime(DATE_FORMAT) == search_date:
                     results.append(entry)
-
             if len(results) == 0:
                 clear()
                 print("{} not found. "
@@ -336,15 +334,14 @@ def search_by_date():
                 continue
             else:
                 clear()
-                display_entries(results)
+                return results
 
 
-def search_by_date_range():
+def search_by_date_range(entries):
     """ Search by a range of two dates """
     clear()
     results = []
     while True:
-        entries = fetch_tasks()
         start_date = input("Search between two dates.\n"
                            "Enter the start date to begin in "
                            "DD-MM-YYYY format:   ")
@@ -378,15 +375,13 @@ def search_by_date_range():
                     continue
                 else:
                     clear()
-                    display_entries(results)
-                    break
+                    return results
 
 
-def search_by_term():
+def search_by_term(entries):
     """ Search by any term """
     clear()
     while True:
-        entries = fetch_tasks()
         print("Search by Keyword\n")
         search_term = input("Enter a search term: ")
         entries = entries.where(
@@ -398,14 +393,13 @@ def search_by_term():
             print("Sorry. No matches. Please try again.")
             continue
         else:
-            display_entries(entries)
+            return entries
 
 
-def search_by_time_spent():
+def search_by_time_spent(entries):
     """ Search by time spent on task """
     clear()
     while True:
-        entries = fetch_tasks()
         print("Search by Time Spent\n")
         time_search = input("Enter a duration to search (minutes):  ")
         time_search = validate_task_duration(time_search)
@@ -417,7 +411,7 @@ def search_by_time_spent():
             print("Sorry. No matches. Please try again.")
             continue
         else:
-            display_entries(entries)
+            return entries
 
 
 def edit_task(index, entries):
@@ -472,7 +466,6 @@ def edit_task(index, entries):
         clear()
         continue
 
-
 def delete_task(index, entries):
     """ Delete a task """
     entry = entries[index]
@@ -485,6 +478,7 @@ def delete_task(index, entries):
         clear()
         entry.delete_instance()
         input("Entry deleted. Press any button to return.")
+        return True
     else:
         clear()
         input("Entry not deleted. Press any button to return to "
