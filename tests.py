@@ -164,7 +164,7 @@ class BaseTestCase(unittest.TestCase):
         expected = 1
         entries = Entry.select()
         with unittest.mock.patch('builtins.input',
-                                 ide_effect=["24-08-1992"]):
+                                 side_effect=["24-08-1992"]):
             actual = worklog.search_by_date(entries)
             self.assertEqual(len(actual), expected)
 
